@@ -1,4 +1,4 @@
-package net.guides.springboot2.springboot2jpacrudexample.model;
+package com.java.spring.crud.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

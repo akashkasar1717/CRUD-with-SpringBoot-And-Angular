@@ -1,4 +1,4 @@
-package net.guides.springboot2.springboot2jpacrudexample.controller;
+package com.java.spring.crud.controller;
 
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
@@ -14,6 +14,10 @@ import java.util.Map;
 import java.io.InputStreamReader;
 import javax.crypto.Mac;
 import com.google.zxing.qrcode.QRCodeWriter;
+import com.java.spring.crud.exception.ResourceNotFoundException;
+import com.java.spring.crud.model.Employee;
+import com.java.spring.crud.repository.EmployeeRepository;
+
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -40,9 +44,6 @@ import javax.imageio.ImageIO;
 import javax.net.ssl.HttpsURLConnection;
 
 import jakarta.validation.Valid;
-import net.guides.springboot2.springboot2jpacrudexample.exception.ResourceNotFoundException;
-import net.guides.springboot2.springboot2jpacrudexample.model.Employee;
-import net.guides.springboot2.springboot2jpacrudexample.repository.EmployeeRepository;
 
 @CrossOrigin(origins = "http://192.168.0.215:4200",allowCredentials = "true")
 @RestController

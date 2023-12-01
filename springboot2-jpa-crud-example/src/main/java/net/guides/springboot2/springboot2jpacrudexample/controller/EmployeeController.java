@@ -44,7 +44,7 @@ import net.guides.springboot2.springboot2jpacrudexample.exception.ResourceNotFou
 import net.guides.springboot2.springboot2jpacrudexample.model.Employee;
 import net.guides.springboot2.springboot2jpacrudexample.repository.EmployeeRepository;
 
-@CrossOrigin(origins = "http://192.168.0.215:4200")
+@CrossOrigin(origins = "http://192.168.0.215:4200",allowCredentials = "true")
 @RestController
 public class EmployeeController {
 	@Autowired
@@ -98,120 +98,4 @@ public class EmployeeController {
 		return response;
 	}
 	
-	@GetMapping(value = "/employees/Pay/{vo}")
-	public String showPage(@PathVariable(value ="vo") String merchantRef) throws IOException {
-		
-		String merchantRefNo = merchantRef;
-		String amount = "10";//amount to send
-		String requestType = "UPIQR";
-		String currency = "356";// Code numeric of various nations
-		String merchantID = "T_99926";
-		String addlParam1 = "dfg";
-		String addlParam2 = "rtyrt";
-		String secureTokenHash = "Y";
-		String invoiceDate = "20230317";
-		String hashtext = amount + currency + merchantID + merchantRefNo;
-		String key1 = hmacDigest(hashtext, "abc");
-		
-		String hashtext1 = addlParam1 + addlParam2 + amount + currency + invoiceDate + merchantID + merchantRefNo
-				+ requestType + secureTokenHash;
-
-		String digest = hmacDigest(hashtext1, key1);
-		
-		String url = "https://qa.phicommerce.com/pg/api/generateQR";
-		URL obj = new URL(url);
-		HttpsURLConnection con = (HttpsURLConnection) obj.openConnection();
-
-		con.setRequestMethod("POST");
-		con.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-		String urlParams = "addlParam1=" + addlParam1 + "&addlParam2=" + addlParam2 + "&amount=" + amount + "&currency="
-				+ currency + "&invoiceDate=" + invoiceDate + "&merchantID=" + merchantID + "&merchantRefNo="
-				+ merchantRefNo + "&requestType=" + requestType + "&secureTokenHash=" + secureTokenHash + "&secureHash="
-				+ digest.trim() + "";
-
-		con.setDoOutput(true);
-		con.setDoInput(true);
-		DataOutputStream wr = new DataOutputStream(con.getOutputStream());
-		wr.writeBytes(urlParams);
-		wr.flush();
-		wr.close();
-		System.out.println("Sending POST request to URL : " + urlParams);
-
-		BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
-		String inputLine;
-		StringBuffer response = new StringBuffer();
-		while ((inputLine = in.readLine()) != null) {
-			response.append(inputLine);
-		}
-		in.close();
-
-		//model.addAttribute("response", response.toString());
-
-		JSONObject json1 = null;
-		String upiQR = "";
-		JSONObject json = new JSONObject(response.toString());
-		String qr = null;
-		if (json.get("respBody") != null && !json.get("respBody").toString().equals("null")
-				&& !json.get("respBody").toString().equals("")) {
-			json1 = new JSONObject(json.get("respBody").toString());
-			upiQR = json1.get("upiQR").toString();
-
-			 qr = toBase64QrCode(upiQR, 200, 200);
-			//model.addAttribute("qr", qr);
-			System.out.println(qr);
-		}
-		
-		return qr;
-		
-	}
-	
-	public static String hmacDigest(String msg, String keyString) {
-		String digest = null;
-		try {
-			SecretKeySpec key = new SecretKeySpec((keyString).getBytes("UTF-8"), "HmacSHA256");
-			Mac mac = Mac.getInstance("HmacSHA256");
-			mac.init(key);
-			byte[] bytes = mac.doFinal(msg.getBytes("ASCII"));
-			StringBuffer hash = new StringBuffer();
-			for (int i = 0; i < bytes.length; i++) {
-				String hex = Integer.toHexString(0xFF & bytes[i]);
-				if (hex.length() == 1) {
-					hash.append('0');
-				}
-				hash.append(hex);
-			}
-
-			digest = hash.toString();
-		} catch (UnsupportedEncodingException e) {
-		} catch (InvalidKeyException e) {
-		} catch (NoSuchAlgorithmException e) {
-		}
-		return digest;
-	}
-	
-	public static String toBase64QrCode(final String input, final int width, final int height) {
-		try {
-			final BufferedImage bufferedImage = toQrCode(input, width, height);
-			ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-			ImageIO.write(bufferedImage, DEFAULT_IMAGE_FORMAT, outputStream);
-			return BASE64_PREFIX + new String(java.util.Base64.getEncoder().encode(outputStream.toByteArray()));
-		} catch (Exception e) {
-
-			throw new RuntimeException(e);
-		}
-	}
-	
-	public static BufferedImage toQrCode(final String input, final int width, final int height) {
-		final QRCodeWriter barcodeWriter = new QRCodeWriter();
-		try {
-			final Map<EncodeHintType, Object> hints = new EnumMap<>(EncodeHintType.class);
-			hints.put(EncodeHintType.CHARACTER_SET, UTF_8_CHARSET);
-			hints.put(EncodeHintType.MARGIN, QR_CODE_WHITESPACE_MARGIN);
-			final BitMatrix bitMatrix = barcodeWriter.encode(input, BarcodeFormat.QR_CODE, width, height, hints);
-			return MatrixToImageWriter.toBufferedImage(bitMatrix);
-		} catch (Exception e) {
-			
-			throw new RuntimeException(e);
-		}
-	}
 }

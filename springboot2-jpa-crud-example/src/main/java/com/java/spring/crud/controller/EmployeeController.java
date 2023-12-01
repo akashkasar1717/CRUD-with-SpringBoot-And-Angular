@@ -45,7 +45,7 @@ import javax.net.ssl.HttpsURLConnection;
 
 import jakarta.validation.Valid;
 
-@CrossOrigin(origins = "http://192.168.0.215:4200",allowCredentials = "true")
+@CrossOrigin(origins = "http://localhost:4200",allowCredentials = "true")
 @RestController
 public class EmployeeController {
 	@Autowired
